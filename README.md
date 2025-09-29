@@ -1,7 +1,8 @@
 # 🎯 BGFocus - Professional Focus Management Platform
 
 <div align="center">
-![BGFocus Logo](assets/BGFocus_icon.png)
+![BGFocus Logo](assets/BGFocus%20icon.png)
+
 
 
 **A sophisticated React Native productivity app with professional UI/UX design, advanced task management, and comprehensive analytics.**
