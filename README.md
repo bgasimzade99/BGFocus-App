@@ -1,10 +1,9 @@
 # BGFocus - Professional Focus Management Platform
 
 <div align="center">
-
 ![BGFocus Logo](BGFocusApp/assets/BGFocus%20icon.png)
 
-**A sophisticated React Native productivity application with enterprise-grade UI/UX design, advanced task management, and comprehensive analytics.**
+**A sophisticated React Native productivity application with enterprise-grade UI/UX design, advanced task management, comprehensive analytics, and AI-powered ChatGLM integration.**
 
 [![React Native](https://img.shields.io/badge/React%20Native-0.72-blue.svg)](https://reactnative.dev/)
 [![Expo](https://img.shields.io/badge/Expo-49.0-black.svg)](https://expo.dev/)
