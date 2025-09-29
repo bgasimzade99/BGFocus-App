@@ -470,7 +470,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 <div align="center">
 
-**Made with ❤️ and ☕ by the BGFocus Team**
+**Made with ❤️ and ☕ by the BGDev**
 
 *Transform your productivity with professional focus management and advanced analytics.*
 
