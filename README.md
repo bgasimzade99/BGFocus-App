@@ -2,7 +2,7 @@
 
 <div align="center">
 
-![BGFocus Logo](assets/BGFocus%20icon.png)
+![BGFocus Logo](assets/BGFocus icon.png)
 
 **A sophisticated React Native productivity app with professional UI/UX design, advanced task management, and comprehensive analytics.**
 
