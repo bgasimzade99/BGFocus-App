@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Dimensions, Modal, TextInput, Alert } from 'react-native';
+import React, { useState, useEffect, useRef } from 'react';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Dimensions, Modal, TextInput, Alert, StatusBar, Platform } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import { GlassCard } from '../components/GlassCard';
@@ -9,6 +9,8 @@ import { useTheme } from '../hooks/useTheme';
 import { SPACING, FONT_SIZES, FONT_WEIGHTS } from '../constants/spacing';
 import { GRADIENTS } from '../constants/colors';
 import { Task, ProductivityStats } from '../types';
+import { Animated } from 'react-native';
+import * as Haptics from 'expo-haptics';
 
 const { width } = Dimensions.get('window');
 
@@ -72,6 +74,10 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
   const [stats] = useState<ProductivityStats>(mockStats);
   const [tasks, setTasks] = useState<Task[]>(mockTasks);
   const [showAddTaskModal, setShowAddTaskModal] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [showQuickActions, setShowQuickActions] = useState(false);
+  const [currentTime, setCurrentTime] = useState(new Date());
+  
   const [newTask, setNewTask] = useState({
     title: '',
     description: '',
@@ -80,7 +86,60 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
     estimatedDuration: 30,
   });
 
+  // Professional Animation System
+  const fadeAnim = useRef(new Animated.Value(0)).current;
+  const slideAnim = useRef(new Animated.Value(50)).current;
+  const scaleAnim = useRef(new Animated.Value(0.95)).current;
+  
+  useEffect(() => {
+    startProfessionalAnimations();
+    const timer = setInterval(() => setCurrentTime(new Date()), 1000);
+    return () => clearInterval(timer);
+  }, []);
+
+  const startProfessionalAnimations = () => {
+    Animated.parallel([
+      Animated.timing(fadeAnim, {
+        toValue: 1,
+        duration: 800,
+        useNativeDriver: true,
+      }),
+      Animated.timing(slideAnim, {
+        toValue: 0,
+        duration: 600,
+        useNativeDriver: true,
+      }),
+      Animated.spring(scaleAnim, {
+        toValue: 1,
+        useNativeDriver: true,
+        tension: 100,
+        friction: 8,
+      }),
+    ]).start();
+  };
+
+  const triggerHaptic = (type: 'light' | 'medium' | 'heavy' = 'light') => {
+    const hapticType = type === 'light' ? Haptics.ImpactFeedbackStyle.Light :
+                      type === 'medium' ? Haptics.ImpactFeedbackStyle.Medium :
+                      Haptics.ImpactFeedbackStyle.Heavy;
+    Haptics.impactAsync(hapticType);
+  };
+
+  const getGreeting = () => {
+    const hour = currentTime.getHours();
+    if (hour < 12) return 'Good Morning';
+    if (hour < 17) return 'Good Afternoon';
+    return 'Good Evening';
+  };
+
+  const formatTime = (minutes: number) => {
+    const hours = Math.floor(minutes / 60);
+    const mins = minutes % 60;
+    return hours > 0 ? `${hours}h ${mins}m` : `${mins}m`;
+  };
+
   const handleToggleTask = (taskId: string) => {
+    triggerHaptic('light');
     setTasks(tasks.map(task => 
       task.id === taskId 
         ? { ...task, completed: !task.completed, updatedAt: new Date() }
@@ -89,6 +148,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
   };
 
   const handleDeleteTask = (taskId: string) => {
+    triggerHaptic('medium');
     Alert.alert(
       'Delete Task',
       'Are you sure you want to delete this task?',
@@ -99,7 +159,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
           style: 'destructive',
           onPress: () => {
             setTasks(tasks.filter(task => task.id !== taskId));
-            Alert.alert('Success', 'Task deleted successfully!');
+            triggerHaptic('heavy');
           },
         },
       ]
@@ -111,6 +171,9 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
       Alert.alert('Error', 'Task title is required');
       return;
     }
+
+    triggerHaptic('medium');
+    setIsLoading(true);
 
     const task: Task = {
       id: Date.now().toString(),
@@ -131,7 +194,8 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
       estimatedDuration: 30,
     });
     setShowAddTaskModal(false);
-    Alert.alert('Success', 'Task added successfully!');
+    setIsLoading(false);
+    triggerHaptic('heavy');
   };
 
   const getGreeting = () => {

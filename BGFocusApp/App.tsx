@@ -1,10 +1,10 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, ScrollView, TextInput, FlatList, Dimensions, Image } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, ScrollView, TextInput, FlatList, Dimensions, Image, StatusBar, Platform } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import { BlurView } from 'expo-blur';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { Animated } from 'react-native';
+import { Animated, PanResponder } from 'react-native';
 import * as Haptics from 'expo-haptics';
 import { AnimatedButton } from './src/components/AnimatedButton';
 import { GlassCard } from './src/components/GlassCard';
@@ -23,6 +23,7 @@ import { ProjectAnalyticsScreen } from './src/screens/ProjectAnalyticsScreen';
 import { ProjectFilesScreen } from './src/screens/ProjectFilesScreen';
 import { AIChatInterface } from './src/components/AIChatInterface';
 import { PremiumTabBar } from './src/components/PremiumTabBar';
+import { SPACING } from './src/constants/spacing';
 
 const { width } = Dimensions.get('window');
 
@@ -47,29 +48,105 @@ const mockInsights = [
 ];
 
 export default function App() {
+  // Core App State
   const [isOnboarded, setIsOnboarded] = useState(false);
   const [activeTab, setActiveTab] = useState('home');
-  const [tasks, setTasks] = useState(mockTasks);
-  const [notes, setNotes] = useState(mockNotes);
-  const [showAIAssistant, setShowAIAssistant] = useState(false);
-  const [showAIChat, setShowAIChat] = useState(false);
-  const [focusTime, setFocusTime] = useState(0);
-  const [completedSessions, setCompletedSessions] = useState(0);
   const [currentScreen, setCurrentScreen] = useState('main');
   
-  // Animation values for logo
+  // Data State
+  const [tasks, setTasks] = useState(mockTasks);
+  const [notes, setNotes] = useState(mockNotes);
+  
+  // UI State
+  const [showAIAssistant, setShowAIAssistant] = useState(false);
+  const [showAIChat, setShowAIChat] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [showNotifications, setShowNotifications] = useState(false);
+  
+  // Productivity State
+  const [focusTime, setFocusTime] = useState(0);
+  const [completedSessions, setCompletedSessions] = useState(0);
+  const [dailyGoal, setDailyGoal] = useState(480); // 8 hours in minutes
+  const [streak, setStreak] = useState(7);
+  const [productivityScore, setProductivityScore] = useState(85);
+  
+  // Professional Features
+  const [isPremium, setIsPremium] = useState(true);
+  const [theme, setTheme] = useState('dark');
+  const [soundEnabled, setSoundEnabled] = useState(true);
+  const [hapticEnabled, setHapticEnabled] = useState(true);
+  
+  // Professional Animation System
   const pulseAnim = useRef(new Animated.Value(1)).current;
   const rotateAnim = useRef(new Animated.Value(0)).current;
   const waveAnim1 = useRef(new Animated.Value(0)).current;
   const waveAnim2 = useRef(new Animated.Value(0)).current;
   const waveAnim3 = useRef(new Animated.Value(0)).current;
+  const slideAnim = useRef(new Animated.Value(0)).current;
+  const fadeAnim = useRef(new Animated.Value(1)).current;
+  const scaleAnim = useRef(new Animated.Value(1)).current;
+  
+  // Professional Gesture Handling
+  const panResponder = useRef(
+    PanResponder.create({
+      onStartShouldSetPanResponder: () => true,
+      onPanResponderGrant: () => {
+        if (hapticEnabled) {
+          Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+        }
+      },
+    })
+  ).current;
 
   useEffect(() => {
-    checkOnboardingStatus();
-    startLogoAnimations();
+    initializeApp();
   }, []);
 
-  const startLogoAnimations = () => {
+  const initializeApp = async () => {
+    setIsLoading(true);
+    try {
+      await checkOnboardingStatus();
+      await loadUserPreferences();
+      await loadProductivityData();
+      startProfessionalAnimations();
+    } catch (error) {
+      console.error('App initialization error:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const loadUserPreferences = async () => {
+    try {
+      const savedTheme = await AsyncStorage.getItem('theme');
+      const savedSound = await AsyncStorage.getItem('soundEnabled');
+      const savedHaptic = await AsyncStorage.getItem('hapticEnabled');
+      
+      if (savedTheme) setTheme(savedTheme);
+      if (savedSound !== null) setSoundEnabled(JSON.parse(savedSound));
+      if (savedHaptic !== null) setHapticEnabled(JSON.parse(savedHaptic));
+    } catch (error) {
+      console.error('Error loading preferences:', error);
+    }
+  };
+
+  const loadProductivityData = async () => {
+    try {
+      const savedFocusTime = await AsyncStorage.getItem('focusTime');
+      const savedSessions = await AsyncStorage.getItem('completedSessions');
+      const savedStreak = await AsyncStorage.getItem('streak');
+      const savedScore = await AsyncStorage.getItem('productivityScore');
+      
+      if (savedFocusTime) setFocusTime(parseInt(savedFocusTime));
+      if (savedSessions) setCompletedSessions(parseInt(savedSessions));
+      if (savedStreak) setStreak(parseInt(savedStreak));
+      if (savedScore) setProductivityScore(parseInt(savedScore));
+    } catch (error) {
+      console.error('Error loading productivity data:', error);
+    }
+  };
+
+  const startProfessionalAnimations = () => {
     // Pulse animation for the focus target
     const pulseAnimation = Animated.loop(
       Animated.sequence([
@@ -158,6 +235,47 @@ export default function App() {
     }
   };
 
+  // Professional Utility Functions
+  const triggerHaptic = (type: 'light' | 'medium' | 'heavy' = 'light') => {
+    if (hapticEnabled) {
+      const hapticType = type === 'light' ? Haptics.ImpactFeedbackStyle.Light :
+                        type === 'medium' ? Haptics.ImpactFeedbackStyle.Medium :
+                        Haptics.ImpactFeedbackStyle.Heavy;
+      Haptics.impactAsync(hapticType);
+    }
+  };
+
+  const saveProductivityData = async () => {
+    try {
+      await AsyncStorage.setItem('focusTime', focusTime.toString());
+      await AsyncStorage.setItem('completedSessions', completedSessions.toString());
+      await AsyncStorage.setItem('streak', streak.toString());
+      await AsyncStorage.setItem('productivityScore', productivityScore.toString());
+    } catch (error) {
+      console.error('Error saving productivity data:', error);
+    }
+  };
+
+  const calculateProductivityScore = () => {
+    const goalProgress = Math.min((focusTime / dailyGoal) * 100, 100);
+    const sessionBonus = Math.min(completedSessions * 5, 25);
+    const streakBonus = Math.min(streak * 2, 20);
+    return Math.min(Math.round(goalProgress + sessionBonus + streakBonus), 100);
+  };
+
+  const formatTime = (minutes: number) => {
+    const hours = Math.floor(minutes / 60);
+    const mins = minutes % 60;
+    return hours > 0 ? `${hours}h ${mins}m` : `${mins}m`;
+  };
+
+  const getGreeting = () => {
+    const hour = new Date().getHours();
+    if (hour < 12) return 'Good Morning';
+    if (hour < 17) return 'Good Afternoon';
+    return 'Good Evening';
+  };
+
   const handleOnboardingComplete = async () => {
     try {
       await AsyncStorage.setItem('isOnboarded', 'true');
@@ -188,25 +306,40 @@ export default function App() {
     );
   };
 
-  const addTask = (title: string) => {
+  const addTask = (title: string, priority: 'low' | 'medium' | 'high' = 'medium', category: string = 'Personal') => {
+    triggerHaptic('medium');
     const newTask = {
       id: Date.now().toString(),
       title,
       description: 'AI-suggested task',
       completed: false,
-      priority: 'medium' as const,
-      category: 'Personal',
+      priority,
+      category,
       aiSuggested: true,
+      createdAt: new Date().toISOString(),
     };
     setTasks(prev => [newTask, ...prev]);
-    Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+    
+    // Update productivity score
+    setProductivityScore(prev => Math.min(prev + 1, 100));
+    saveProductivityData();
+  };
+
+  const deleteTask = (taskId: string) => {
+    triggerHaptic('medium');
+    setTasks(prevTasks => prevTasks.filter(task => task.id !== taskId));
+    saveProductivityData();
   };
 
   const handleFocusSessionComplete = (type: 'work' | 'break') => {
+    triggerHaptic('heavy');
     if (type === 'work') {
       setCompletedSessions(prev => prev + 1);
       setFocusTime(prev => prev + 25);
+      setProductivityScore(prev => Math.min(prev + 5, 100));
+      setStreak(prev => prev + 1);
     }
+    saveProductivityData();
   };
 
   const handleTimeUpdate = (timeLeft: number, totalTime: number) => {
@@ -218,153 +351,70 @@ export default function App() {
   }
 
   return (
-    <LinearGradient colors={['#0A0A0A', '#1A1A1A']} style={styles.container}>
-      {/* Professional Header */}
+    <View style={styles.appContainer}>
+      <StatusBar barStyle="light-content" backgroundColor="#0A0A0A" />
+      <LinearGradient colors={['#0A0A0A', '#1A1A1A', '#0A0A0A']} style={styles.container}>
+      {/* Enhanced Header */}
       <View style={styles.header}>
         <LinearGradient
           colors={['rgba(0, 0, 0, 0.3)', 'rgba(0, 0, 0, 0.1)']}
-          style={styles.headerGradient}
+          style={styles.headerBackground}
         >
           <View style={styles.headerContent}>
             {/* Left Section - Logo & Brand */}
             <View style={styles.headerLeft}>
               <LinearGradient
-                colors={['#6366F1', '#8B5CF6']}
-                style={styles.logoGradient}
+                colors={['#8B5CF6', '#EC4899', '#F59E0B']}
+                style={styles.logoContainer}
               >
-                <View style={styles.logoInner}>
-                  <View style={styles.logoIcon}>
-                    {/* Focus Target/Circle */}
-                    <Animated.View 
-                      style={[
-                        styles.focusTarget,
-                        {
-                          transform: [
-                            { scale: pulseAnim },
-                            { 
-                              rotate: rotateAnim.interpolate({
-                                inputRange: [0, 1],
-                                outputRange: ['0deg', '360deg'],
-                              })
-                            }
-                          ]
+                <Animated.View 
+                  style={[
+                    styles.logoIcon,
+                    {
+                      transform: [
+                        { scale: pulseAnim },
+                        { 
+                          rotate: rotateAnim.interpolate({
+                            inputRange: [0, 1],
+                            outputRange: ['0deg', '360deg'],
+                          })
                         }
-                      ]}
-                    >
-                      <View style={styles.targetOuter}>
-                        <View style={styles.targetMiddle}>
-                          <View style={styles.targetCenter}>
-                            <Animated.View 
-                              style={[
-                                styles.focusDot,
-                                {
-                                  transform: [{ scale: pulseAnim }]
-                                }
-                              ]} 
-                            />
-                          </View>
+                      ]
+                    }
+                  ]}
+                >
+                  <View style={styles.focusTarget}>
+                    <View style={styles.targetOuter}>
+                      <View style={styles.targetMiddle}>
+                        <View style={styles.targetCenter}>
+                          <Animated.View 
+                            style={[
+                              styles.focusDot,
+                              {
+                                transform: [{ scale: pulseAnim }]
+                              }
+                            ]} 
+                          />
                         </View>
                       </View>
-                    </Animated.View>
-                    {/* Brain/Concentration Lines */}
-                    <View style={styles.brainWaves}>
-                      <Animated.View 
-                        style={[
-                          styles.wave,
-                          {
-                            opacity: waveAnim1.interpolate({
-                              inputRange: [0, 1],
-                              outputRange: [0.3, 1],
-                            }),
-                            transform: [
-                              {
-                                scaleX: waveAnim1.interpolate({
-                                  inputRange: [0, 1],
-                                  outputRange: [0.8, 1.2],
-                                })
-                              }
-                            ]
-                          }
-                        ]} 
-                      />
-                      <Animated.View 
-                        style={[
-                          styles.wave,
-                          {
-                            opacity: waveAnim2.interpolate({
-                              inputRange: [0, 1],
-                              outputRange: [0.3, 1],
-                            }),
-                            transform: [
-                              {
-                                scaleX: waveAnim2.interpolate({
-                                  inputRange: [0, 1],
-                                  outputRange: [0.8, 1.2],
-                                })
-                              }
-                            ]
-                          }
-                        ]} 
-                      />
-                      <Animated.View 
-                        style={[
-                          styles.wave,
-                          {
-                            opacity: waveAnim3.interpolate({
-                              inputRange: [0, 1],
-                              outputRange: [0.3, 1],
-                            }),
-                            transform: [
-                              {
-                                scaleX: waveAnim3.interpolate({
-                                  inputRange: [0, 1],
-                                  outputRange: [0.8, 1.2],
-                                })
-                              }
-                            ]
-                          }
-                        ]} 
-                      />
                     </View>
                   </View>
-                </View>
+                </Animated.View>
               </LinearGradient>
               <View style={styles.brandContainer}>
-                <Text style={styles.headerTitle}>BGFocus</Text>
-                <Text style={styles.headerSubtitle}>Professional Focus Management</Text>
+                <Text style={styles.brandName}>BGFOCUS</Text>
+                <View style={styles.brandUnderline} />
+                <Text style={styles.brandTagline}>Professional Focus Management</Text>
               </View>
             </View>
 
-            {/* Right Section - User Profile & Actions */}
-            <View style={styles.headerRight}>
-              <View style={styles.userProfile}>
-                <View style={styles.userAvatar}>
-                  <Text style={styles.userInitials}>JD</Text>
-                </View>
-                <View style={styles.userInfo}>
-                  <Text style={styles.userName}>John Doe</Text>
-                  <Text style={styles.userRole}>Product Manager</Text>
-                </View>
-              </View>
-              <View style={styles.headerActions}>
-                <TouchableOpacity 
-                  style={styles.actionButton}
-                  onPress={() => handleNavigation('PersonalInformation')}
-                >
-                  <View style={styles.actionButtonIcon}>
-                    <Ionicons name="person-circle" size={18} color="#6366F1" />
-                  </View>
-                </TouchableOpacity>
-                <TouchableOpacity 
-                  style={styles.actionButton}
-                  onPress={() => handleNavigation('Settings')}
-                >
-                  <View style={styles.actionButtonIcon}>
-                    <Ionicons name="settings" size={18} color="#8B5CF6" />
-                  </View>
-                </TouchableOpacity>
-              </View>
-            </View>
+            {/* Right Section - Settings */}
+            <TouchableOpacity 
+              style={styles.settingsButton}
+              onPress={() => handleNavigation('Settings')}
+            >
+              <Ionicons name="settings-outline" size={24} color="#FFFFFF" />
+            </TouchableOpacity>
           </View>
         </LinearGradient>
       </View>
@@ -373,9 +423,9 @@ export default function App() {
       <View style={styles.content}>
         {currentScreen === 'main' && (
           <>
-            {activeTab === 'home' && <HomeScreen navigation={{ navigate: (screen: string) => handleTabChange(screen) }} tasks={tasks} onTaskToggle={toggleTaskCompletion} focusTime={focusTime} completedSessions={completedSessions} />}
+            {activeTab === 'home' && <HomeScreen navigation={{ navigate: (screen: string) => handleTabChange(screen) }} tasks={tasks} onTaskToggle={toggleTaskCompletion} focusTime={focusTime} completedSessions={completedSessions} onTabChange={handleTabChange} onAddTask={addTask} onDeleteTask={deleteTask} />}
             {activeTab === 'focus' && <FocusScreen onSessionComplete={handleFocusSessionComplete} onTimeUpdate={handleTimeUpdate} />}
-            {activeTab === 'tasks' && <TasksScreen tasks={tasks} onTaskToggle={toggleTaskCompletion} onAddTask={addTask} />}
+            {activeTab === 'tasks' && <TasksScreen tasks={tasks} onTaskToggle={toggleTaskCompletion} onAddTask={addTask} onDeleteTask={deleteTask} />}
             {activeTab === 'notes' && <NotesScreen notes={notes} />}
             {activeTab === 'insights' && <InsightsScreen insights={mockInsights} />}
             {activeTab === 'analytics' && <AnalyticsScreen navigation={{ navigate: (screen: string) => handleNavigation(screen) }} />}
@@ -452,7 +502,8 @@ export default function App() {
         visible={showAIChat}
         onClose={() => setShowAIChat(false)}
       />
-    </LinearGradient>
+      </LinearGradient>
+    </View>
   );
 }
 
@@ -552,9 +603,17 @@ const OnboardingScreen = ({ onComplete }: { onComplete: () => void }) => {
   );
 };
 
-const HomeScreen = ({ tasks, onTaskToggle, focusTime, completedSessions }: any) => {
+const HomeScreen = ({ tasks, onTaskToggle, focusTime, completedSessions, onTabChange, onAddTask, onDeleteTask }: any) => {
+  const [newTaskTitle, setNewTaskTitle] = useState('');
   const todayTasks = tasks.filter((t: any) => !t.completed);
   const completedToday = tasks.filter((t: any) => t.completed).length;
+
+  const addTask = () => {
+    if (newTaskTitle.trim()) {
+      onAddTask(newTaskTitle.trim());
+      setNewTaskTitle('');
+    }
+  };
 
   return (
     <ScrollView style={styles.screen} showsVerticalScrollIndicator={false}>
@@ -590,13 +649,34 @@ const HomeScreen = ({ tasks, onTaskToggle, focusTime, completedSessions }: any) 
 
       <AnimatedButton
         title="Start Focus Session"
-        onPress={() => Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium)}
+        onPress={() => {
+          Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+          onTabChange('focus');
+        }}
         variant="glow"
         size="large"
         icon="play-circle"
         iconPosition="left"
         style={styles.primaryAction}
       />
+
+      {/* Add Task Section */}
+      <GlassCard style={styles.addTaskCard} animated delay={150}>
+        <TextInput
+          style={styles.taskInput}
+          placeholder="Add new task..."
+          placeholderTextColor="rgba(255, 255, 255, 0.6)"
+          value={newTaskTitle}
+          onChangeText={setNewTaskTitle}
+        />
+        <AnimatedButton
+          title="Add"
+          onPress={addTask}
+          variant="primary"
+          icon="add"
+          disabled={!newTaskTitle.trim()}
+        />
+      </GlassCard>
 
       <GlassCard style={styles.tasksCard} animated delay={200}>
         <View style={styles.tasksHeader}>
@@ -613,22 +693,29 @@ const HomeScreen = ({ tasks, onTaskToggle, focusTime, completedSessions }: any) 
           </View>
         </View>
         {todayTasks.slice(0, 3).map((task: any) => (
-          <TouchableOpacity
-            key={task.id}
-            style={styles.taskItem}
-            onPress={() => onTaskToggle(task.id)}
-          >
-            <View style={styles.taskLeft}>
-              <View style={[styles.priorityDot, { backgroundColor: task.priority === 'high' ? '#FF4444' : task.priority === 'medium' ? '#FFB800' : '#00FF88' }]} />
-              <View style={styles.taskContent}>
-                <Text style={styles.taskTitle}>{task.title}</Text>
-                <Text style={styles.taskDescription}>{task.description}</Text>
+          <View key={task.id} style={styles.taskItem}>
+            <TouchableOpacity
+              style={styles.taskMainContent}
+              onPress={() => onTaskToggle(task.id)}
+            >
+              <View style={styles.taskLeft}>
+                <View style={[styles.priorityDot, { backgroundColor: task.priority === 'high' ? '#FF4444' : task.priority === 'medium' ? '#FFB800' : '#00FF88' }]} />
+                <View style={styles.taskContent}>
+                  <Text style={styles.taskTitle}>{task.title}</Text>
+                  <Text style={styles.taskDescription}>{task.description}</Text>
+                </View>
               </View>
-            </View>
-            <TouchableOpacity style={styles.taskCheckbox}>
-              <Ionicons name="ellipse-outline" size={24} color="#666666" />
+              <TouchableOpacity style={styles.taskCheckbox}>
+                <Ionicons name="ellipse-outline" size={24} color="#666666" />
+              </TouchableOpacity>
             </TouchableOpacity>
-          </TouchableOpacity>
+            <TouchableOpacity 
+              style={styles.deleteButton}
+              onPress={() => onDeleteTask(task.id)}
+            >
+              <Ionicons name="trash-outline" size={20} color="#FF4444" />
+            </TouchableOpacity>
+          </View>
         ))}
       </GlassCard>
 
@@ -676,7 +763,7 @@ const FocusScreen = ({ onSessionComplete, onTimeUpdate }: any) => {
   );
 };
 
-const TasksScreen = ({ tasks, onTaskToggle, onAddTask }: any) => {
+const TasksScreen = ({ tasks, onTaskToggle, onAddTask, onDeleteTask }: any) => {
   const [newTaskTitle, setNewTaskTitle] = useState('');
   const [activeFilter, setActiveFilter] = useState('all');
 
@@ -728,31 +815,39 @@ const TasksScreen = ({ tasks, onTaskToggle, onAddTask }: any) => {
 
       {filteredTasks.map((task: any) => (
         <GlassCard key={task.id} style={styles.taskCard} animated delay={100}>
-          <TouchableOpacity
-            style={styles.taskItem}
-            onPress={() => onTaskToggle(task.id)}
-          >
-            <View style={styles.taskLeft}>
-              <View style={[styles.priorityDot, { backgroundColor: task.priority === 'high' ? '#FF4444' : task.priority === 'medium' ? '#FFB800' : '#00FF88' }]} />
-              <View style={styles.taskContent}>
-                <Text style={[styles.taskTitle, task.completed && styles.completedTask]}>{task.title}</Text>
-                <Text style={styles.taskDescription}>{task.description}</Text>
-                {task.aiSuggested && (
-                  <View style={styles.aiBadge}>
-                    <Ionicons name="sparkles" size={12} color="#00D4FF" />
-                    <Text style={styles.aiBadgeText}>AI Suggested</Text>
-                  </View>
-                )}
+          <View style={styles.taskItem}>
+            <TouchableOpacity
+              style={styles.taskMainContent}
+              onPress={() => onTaskToggle(task.id)}
+            >
+              <View style={styles.taskLeft}>
+                <View style={[styles.priorityDot, { backgroundColor: task.priority === 'high' ? '#FF4444' : task.priority === 'medium' ? '#FFB800' : '#00FF88' }]} />
+                <View style={styles.taskContent}>
+                  <Text style={[styles.taskTitle, task.completed && styles.completedTask]}>{task.title}</Text>
+                  <Text style={styles.taskDescription}>{task.description}</Text>
+                  {task.aiSuggested && (
+                    <View style={styles.aiBadge}>
+                      <Ionicons name="sparkles" size={12} color="#00D4FF" />
+                      <Text style={styles.aiBadgeText}>AI Suggested</Text>
+                    </View>
+                  )}
+                </View>
               </View>
-            </View>
-            <TouchableOpacity style={styles.taskCheckbox}>
-              <Ionicons 
-                name={task.completed ? "checkmark-circle" : "ellipse-outline"} 
-                size={24} 
-                color={task.completed ? "#00FF88" : "#666666"} 
-              />
+              <TouchableOpacity style={styles.taskCheckbox}>
+                <Ionicons 
+                  name={task.completed ? "checkmark-circle" : "ellipse-outline"} 
+                  size={24} 
+                  color={task.completed ? "#00FF88" : "#666666"} 
+                />
+              </TouchableOpacity>
             </TouchableOpacity>
-          </TouchableOpacity>
+            <TouchableOpacity 
+              style={styles.deleteButton}
+              onPress={() => onDeleteTask(task.id)}
+            >
+              <Ionicons name="trash-outline" size={20} color="#FF4444" />
+            </TouchableOpacity>
+          </View>
         </GlassCard>
       ))}
     </ScrollView>
@@ -823,24 +918,37 @@ const InsightsScreen = ({ insights }: any) => {
 };
 
 const styles = StyleSheet.create({
+  appContainer: {
+    flex: 1,
+    backgroundColor: '#0A0A0A',
+  },
   container: {
     flex: 1,
   },
+  // Enhanced Header Styles
   header: {
     paddingTop: SPACING.xl,
-    paddingBottom: SPACING.md,
-    paddingHorizontal: SPACING.md,
+    paddingBottom: SPACING.lg,
+    paddingHorizontal: SPACING.lg,
     backgroundColor: 'transparent',
   },
-  headerGradient: {
+  headerBackground: {
     borderRadius: 20,
-    padding: SPACING.md,
+    padding: SPACING.lg,
     marginHorizontal: SPACING.sm,
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.08)',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.3,
+    shadowRadius: 16,
+    elevation: 8,
   },
   headerContent: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
+    justifyContent: 'flex-start',
     alignItems: 'center',
+    paddingLeft: SPACING.md,
   },
   headerLeft: {
     flexDirection: 'row',
@@ -848,180 +956,105 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   logoContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  logoGradient: {
     width: 50,
     height: 50,
     borderRadius: 25,
     justifyContent: 'center',
     alignItems: 'center',
     marginRight: SPACING.md,
-    shadowColor: '#6366F1',
+    shadowColor: '#8B5CF6',
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.3,
     shadowRadius: 8,
     elevation: 6,
   },
-  logoInner: {
+  logoIcon: {
     width: 40,
     height: 40,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  logoIcon: {
-    width: 30,
-    height: 30,
     justifyContent: 'center',
     alignItems: 'center',
   },
   brandContainer: {
     flex: 1,
   },
-  headerTitle: {
+  brandName: {
     fontSize: 24,
-    fontWeight: '300',
+    fontWeight: '700',
     color: '#FFFFFF',
-    letterSpacing: 2,
-    textTransform: 'uppercase',
+    letterSpacing: 0.5,
     fontFamily: 'System',
-    textAlign: 'left',
     lineHeight: 28,
   },
-  headerSubtitle: {
-    fontSize: 12,
-    fontWeight: '400',
-    color: '#A1A1AA',
-    letterSpacing: 0.5,
+  brandUnderline: {
+    width: 50,
+    height: 2,
+    backgroundColor: '#8B5CF6',
+    borderRadius: 1,
     marginTop: 2,
-    opacity: 0.8,
   },
-  headerRight: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: SPACING.md,
-  },
-  userProfile: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: SPACING.sm,
-  },
-  userAvatar: {
-    width: 36,
-    height: 36,
-    borderRadius: 18,
-    backgroundColor: '#6366F1',
-    justifyContent: 'center',
-    alignItems: 'center',
-    shadowColor: '#6366F1',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.3,
-    shadowRadius: 4,
-    elevation: 3,
-  },
-  userInitials: {
-    color: '#FFFFFF',
-    fontSize: 14,
-    fontWeight: '600',
+  brandTagline: {
+    fontSize: 12,
+    fontWeight: '500',
+    color: 'rgba(255, 255, 255, 0.7)',
     letterSpacing: 0.5,
+    marginTop: 6,
+    textTransform: 'uppercase',
   },
-  userInfo: {
-    alignItems: 'flex-end',
-  },
-  userName: {
-    color: '#FFFFFF',
-    fontSize: 14,
-    fontWeight: '600',
-    letterSpacing: 0.3,
-  },
-  userRole: {
-    color: '#A1A1AA',
-    fontSize: 11,
-    fontWeight: '400',
-    opacity: 0.8,
-    marginTop: 1,
-  },
-  headerActions: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: SPACING.sm,
-  },
-  actionButton: {
-    padding: SPACING.sm,
-  },
-  actionButtonIcon: {
-    width: 32,
-    height: 32,
-    borderRadius: 16,
+  settingsButton: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
     backgroundColor: 'rgba(255, 255, 255, 0.1)',
     justifyContent: 'center',
     alignItems: 'center',
     borderWidth: 1,
     borderColor: 'rgba(255, 255, 255, 0.2)',
+    marginLeft: 'auto',
   },
   focusTarget: {
     alignItems: 'center',
     justifyContent: 'center',
   },
   targetOuter: {
-    width: 45,
-    height: 45,
-    borderRadius: 22.5,
-    borderWidth: 2,
-    borderColor: 'rgba(255, 255, 255, 0.8)',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  targetMiddle: {
     width: 30,
     height: 30,
     borderRadius: 15,
     borderWidth: 2,
-    borderColor: 'rgba(255, 255, 255, 0.6)',
+    borderColor: 'rgba(255, 255, 255, 0.9)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  targetMiddle: {
+    width: 20,
+    height: 20,
+    borderRadius: 10,
+    borderWidth: 1.5,
+    borderColor: 'rgba(255, 255, 255, 0.7)',
     justifyContent: 'center',
     alignItems: 'center',
   },
   targetCenter: {
-    width: 18,
-    height: 18,
-    borderRadius: 9,
-    backgroundColor: 'rgba(255, 255, 255, 0.9)',
+    width: 12,
+    height: 12,
+    borderRadius: 6,
+    backgroundColor: 'rgba(255, 255, 255, 0.95)',
     justifyContent: 'center',
     alignItems: 'center',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.3,
-    shadowRadius: 4,
-    elevation: 5,
-  },
-  focusDot: {
-    width: 8,
-    height: 8,
-    borderRadius: 4,
-    backgroundColor: '#6366F1',
-    shadowColor: '#6366F1',
-    shadowOffset: { width: 0, height: 0 },
-    shadowOpacity: 0.8,
-    shadowRadius: 4,
-    elevation: 3,
-  },
-  brainWaves: {
-    position: 'absolute',
-    top: -8,
-    right: -8,
-    flexDirection: 'column',
-    gap: 1,
-  },
-  wave: {
-    width: 12,
-    height: 2,
-    borderRadius: 1,
-    backgroundColor: 'rgba(255, 255, 255, 0.7)',
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.3,
     shadowRadius: 2,
+    elevation: 3,
+  },
+  focusDot: {
+    width: 5,
+    height: 5,
+    borderRadius: 2.5,
+    backgroundColor: '#8B5CF6',
+    shadowColor: '#8B5CF6',
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0.8,
+    shadowRadius: 3,
     elevation: 2,
   },
   content: {
@@ -1258,6 +1291,23 @@ const styles = StyleSheet.create({
     paddingVertical: 15,
     borderBottomWidth: 1,
     borderBottomColor: 'rgba(255, 255, 255, 0.1)',
+  },
+  taskMainContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    flex: 1,
+  },
+  deleteButton: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: 'rgba(255, 68, 68, 0.1)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginLeft: SPACING.sm,
+    borderWidth: 1,
+    borderColor: 'rgba(255, 68, 68, 0.2)',
   },
   taskLeft: {
     flexDirection: 'row',
