@@ -1,10 +1,10 @@
-# 🎯 BGFocus - Professional Focus Management Platform
+# BGFocus - Professional Focus Management Platform
 
 <div align="center">
 
-![BGFocus Logo](assets/BGFocus%20icon.png)
+![BGFocus Logo](BGFocusApp/assets/BGFocus%20icon.png)
 
-**A sophisticated React Native productivity app with professional UI/UX design, advanced task management, and comprehensive analytics.**
+**A sophisticated React Native productivity application with enterprise-grade UI/UX design, advanced task management, and comprehensive analytics.**
 
 [![React Native](https://img.shields.io/badge/React%20Native-0.72-blue.svg)](https://reactnative.dev/)
 [![Expo](https://img.shields.io/badge/Expo-49.0-black.svg)](https://expo.dev/)
@@ -15,67 +15,67 @@
 
 ---
 
-## 🌟 Overview
+## Overview
 
-BGFocus is a premium productivity application designed for professionals who demand sophisticated tools for focus management, task organization, and performance analytics. Built with modern React Native and featuring a stunning glassmorphic design, BGFocus combines beautiful aesthetics with powerful functionality.
+BGFocus is a premium productivity application designed for professionals who demand sophisticated tools for focus management, task organization, and performance analytics. Built with modern React Native and featuring a professional glassmorphic design, BGFocus combines elegant aesthetics with powerful functionality.
 
-### ✨ Key Highlights
+### Key Highlights
 
-- **🎨 Professional Design**: Sophisticated glassmorphic UI with dark theme
-- **📊 Advanced Analytics**: Comprehensive performance tracking and insights
-- **🎯 Focus Management**: Professional Pomodoro timer with session analytics
-- **📋 Task Management**: Complete CRUD operations with priority management
-- **👥 Team Collaboration**: Project management and team member coordination
-- **🔐 Security Features**: Professional account management and security settings
-- **📱 Responsive Design**: Optimized for all mobile devices
+- **Professional Design**: Sophisticated glassmorphic UI with dark theme
+- **Advanced Analytics**: Comprehensive performance tracking and insights
+- **Focus Management**: Professional Pomodoro timer with session analytics
+- **Task Management**: Complete CRUD operations with priority management
+- **Team Collaboration**: Project management and team member coordination
+- **Security Features**: Professional account management and security settings
+- **Responsive Design**: Optimized for all mobile devices
 
 ---
 
-## 🚀 Features
+## Features
 
-### 🏠 **Professional Dashboard**
+### Professional Dashboard
 - **Real-time Analytics**: Live productivity metrics and performance indicators
 - **User Profile Integration**: Professional user information display
 - **Quick Actions**: Streamlined access to all core features
 - **Performance Cards**: Beautiful glassmorphic cards with gradient accents
 - **Dynamic Data**: Real-time updates and interactive elements
 
-### 📋 **Advanced Task Management**
+### Advanced Task Management
 - **Smart Task Creation**: Add, edit, delete, and prioritize tasks
 - **Category Management**: Organize tasks by categories and priorities
 - **Progress Tracking**: Visual progress indicators and completion statistics
 - **Task Analytics**: Detailed insights into task completion patterns
 - **Priority System**: High, medium, and low priority with color coding
 
-### ⏰ **Professional Focus Timer**
+### Professional Focus Timer
 - **Pomodoro Technique**: 25-minute focus sessions with break intervals
 - **Session Analytics**: Track focus time, sessions completed, and productivity metrics
 - **Customizable Sessions**: Adjustable work and break durations
 - **Visual Feedback**: Beautiful circular progress animations
 - **Session History**: Comprehensive tracking of all focus sessions
 
-### 📊 **Comprehensive Analytics**
+### Comprehensive Analytics
 - **Performance Dashboard**: Monthly, weekly, and daily analytics
 - **Dynamic Charts**: Real-time data visualization with interactive charts
 - **KPI Tracking**: Key performance indicators with trend analysis
 - **Time Period Selection**: Today, This Week, This Month, This Year views
 - **Export Capabilities**: Data export for external analysis
 
-### 👥 **Project Management Suite**
+### Project Management Suite
 - **Project Organization**: Create, manage, and track multiple projects
 - **Team Collaboration**: Add and manage team members with roles
 - **Project Analytics**: Detailed project performance metrics
 - **File Management**: Upload, organize, and share project files
 - **Progress Tracking**: Visual project completion indicators
 
-### ⚙️ **Professional Settings**
+### Professional Settings
 - **Personal Information**: Comprehensive profile management with avatar selection
 - **Notification Management**: Granular notification preferences
 - **Subscription Management**: Premium feature access and billing
 - **Security Settings**: Password management and security features
 - **Account Management**: Professional account settings and preferences
 
-### 🎨 **Sophisticated UI/UX**
+### Sophisticated UI/UX
 - **Glassmorphic Design**: Modern glass-like effects with blur and transparency
 - **Dark Theme**: Professional dark mode with sophisticated color palette
 - **Smooth Animations**: Fluid transitions and micro-interactions
@@ -84,7 +84,7 @@ BGFocus is a premium productivity application designed for professionals who dem
 
 ---
 
-## 🛠️ Technology Stack
+## Technology Stack
 
 ### **Core Technologies**
 - **Framework**: React Native with Expo SDK 49
@@ -109,33 +109,33 @@ BGFocus is a premium productivity application designed for professionals who dem
 
 ---
 
-## 📱 Screenshots & Features
+## Screenshots & Features
 
-### 🎯 **Professional Header**
+### Professional Header
 - **Animated Logo**: Custom focus-themed logo with pulsing animations
 - **User Profile**: Professional user information display
 - **Quick Actions**: Profile and settings access buttons
 - **Brand Identity**: Clean typography with professional styling
 
-### 🏠 **Home Dashboard**
+### Home Dashboard
 - **Welcome Message**: Professional focus dashboard greeting
 - **Progress Cards**: Today's progress with visual indicators
 - **Task Management**: Quick task overview with add/remove functionality
 - **AI Insights**: Performance analytics and recommendations
 
-### ⏰ **Focus Timer**
+### Focus Timer
 - **Session Selector**: Professional session type selection
 - **Circular Progress**: Beautiful animated timer display
 - **Session Stats**: Focus time and session statistics
 - **Control Buttons**: Play, pause, and skip functionality
 
-### 📊 **Analytics Dashboard**
+### Analytics Dashboard
 - **Performance Charts**: Dynamic monthly performance visualization
 - **KPI Cards**: Key performance indicators with trends
 - **Time Periods**: Today, This Week, This Month, This Year
 - **Project Management**: Quick access to project tools
 
-### ⚙️ **Settings Suite**
+### Settings Suite
 - **Personal Information**: Profile management with avatar selection
 - **Notifications**: Granular notification preferences
 - **Subscription**: Premium feature management
@@ -143,7 +143,7 @@ BGFocus is a premium productivity application designed for professionals who dem
 
 ---
 
-## 🚀 Getting Started
+## Getting Started
 
 ### **Prerequisites**
 - Node.js (v16 or higher)
@@ -202,7 +202,7 @@ npm start -- --clear
 
 ---
 
-## 📁 Project Structure
+## Project Structure
 
 ```
 BGFocusApp/
@@ -262,7 +262,7 @@ BGFocusApp/
 
 ---
 
-## 🎨 Design System
+## Design System
 
 ### **Color Palette**
 ```typescript
@@ -325,7 +325,7 @@ xl: 32px      // Extra large
 
 ---
 
-## 🔧 Configuration
+## Configuration
 
 ### **Environment Setup**
 ```bash
@@ -360,7 +360,7 @@ The app is configured through `app.json`:
 
 ---
 
-## 📈 Performance & Analytics
+## Performance & Analytics
 
 ### **Key Metrics Tracked**
 - **Focus Sessions**: Time spent in focus mode
@@ -378,7 +378,7 @@ The app is configured through `app.json`:
 
 ---
 
-## 🔐 Security & Privacy
+## Security & Privacy
 
 ### **Data Protection**
 - **Local Storage**: All data stored locally using AsyncStorage
@@ -394,7 +394,7 @@ The app is configured through `app.json`:
 
 ---
 
-## 🚀 Deployment
+## Deployment
 
 ### **Expo Build**
 ```bash
@@ -416,7 +416,7 @@ npx expo build:web
 
 ---
 
-## 🤝 Contributing
+## Contributing
 
 We welcome contributions to BGFocus! Please follow these guidelines:
 
@@ -444,13 +444,13 @@ We welcome contributions to BGFocus! Please follow these guidelines:
 
 ---
 
-## 📄 License
+## License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
 ---
 
-## 🙏 Acknowledgments
+## Acknowledgments
 
 - **React Native Community** - For the excellent framework and ecosystem
 - **Expo Team** - For the amazing development tools and platform
@@ -460,7 +460,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ---
 
-## 📞 Support & Contact
+## Support & Contact
 
 - **GitHub Issues**: [Report bugs or request features](https://github.com/bgasimzade99/BGFocus-App/issues)
 - **Documentation**: Check the [TROUBLESHOOTING.md](TROUBLESHOOTING.md) for common issues
